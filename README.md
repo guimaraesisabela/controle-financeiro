@@ -1,50 +1,20 @@
-# Welcome to your Expo app 👋
+# Meu Controle Financeiro
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Este é um aplicativo mobile criado com o objetivo de ajudar no controle financeiro do dia a dia. A ideia surgiu porque minha mãe sempre anotou todas as despesas no papel, e eu quis transformar isso em algo mais prático, organizado e fácil de usar no celular. O projeto acabou virando uma ferramenta que qualquer pessoa pode usar para gerenciar suas finanças de um jeito simples.
 
-## Get started
+No futuro, pretendo integrar o backend com Firebase para salvar os dados do usuário na nuvem e também lançar o app nas stores.
 
-1. Install dependencies
+## Funcionalidades
 
-   ```bash
-   npm install
-   ```
+O aplicativo está sendo construído com foco na simplicidade, trazendo apenas o essencial para ajudar no controle do dinheiro. No momento, ele inclui:
 
-2. Start the app
+- Uma tela inicial onde aparecem todas as transações, incluindo o que entra e o que sai.
+- Uma tela para adicionar metas financeiras, como guardar dinheiro para um objetivo específico.
+- Uma tela para registrar gastos fixos e mensais, para ajudar a não esquecer das despesas recorrentes.
 
-   ```bash
-   npx expo start
-   ```
+## Tecnologias utilizadas
 
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- React Native
+- Expo
+- Expo Router
+- React Navigation
