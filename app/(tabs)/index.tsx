@@ -1,98 +1,217 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { Feather } from "@expo/vector-icons";
+import { useState } from "react";
+import {
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from "react-native";
+import AddTransactionModal from "../components/add-transaction";
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+  const [modalVisible, setModalVisible] = useState(false);
+  const [transactions, setTransactions] = useState([
+    {
+      id: '1',
+      type: 'expense',
+      category: 'iFood',
+      amount: 45.90,
+      icon: 'coffee',
+    },
+    {
+      id: '2',
+      type: 'expense',
+      category: 'Spotify',
+      amount: 34.90,
+      icon: 'music',
+    },
+    {
+      id: '3',
+      type: 'income',
+      category: 'Salário',
+      amount: 3500.00,
+      icon: 'briefcase',
+    },
+  ]);
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+  const handleAddTransaction = (newTransaction: any) => {
+    const transaction = {
+      id: Date.now().toString(),
+      ...newTransaction,
+      icon: newTransaction.type === 'income' ? 'briefcase' : 'shopping-bag',
+    };
+    
+    setTransactions([transaction, ...transactions]);
+  };
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      
+      <ScrollView 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.container}
+      >
+
+        <View style={styles.header}>
+          <View>
+            <Text style={styles.greeting}>Olá, Isabela <Feather name="smile" size={22} /></Text>
+            <Text style={styles.subtitle}>Resumo de Dezembro</Text>
+          </View>
+        </View>
+
+        <View style={styles.balanceCard}>
+          <Text style={styles.balanceTitle}>Saldo disponível</Text>
+          <Text style={styles.balanceValue}>R$ 1.280,00</Text>
+          <Text style={styles.balanceInfo}>
+            Saldo Atual: R$ 3.500 | Despesas: R$ 2.220
+          </Text>
+        </View>
+
+        <View style={styles.miniCardsRow}>
+          <View style={styles.miniCard}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+              <Feather name="arrow-up-circle" size={20} color="green" />
+              <Text>Saldo Atual</Text>
+            </View>
+            <Text style={{ color: "green" }}>R$ 3.500</Text>
+          </View>
+
+          <View style={styles.miniCard}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+              <Feather name="arrow-down-circle" size={20} color="red" />
+              <Text>Despesas</Text>
+            </View>
+            <Text style={{ color: "red" }}>R$ 2.220</Text>
+          </View>
+        </View>
+
+        <Text style={styles.sectionTitle}>Transações recentes</Text>
+
+        {transactions.map((transaction) => (
+          <View key={transaction.id} style={styles.transactionItem}>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+              <Feather name={transaction.icon as any} size={20} />
+              <Text>{transaction.category}</Text>
+            </View>
+            <Text style={{ color: transaction.type === 'income' ? "green" : "red" }}>
+              {transaction.type === 'income' ? '+' : '-'} R$ {transaction.amount.toFixed(2)}
+            </Text>
+          </View>
+        ))}
+
+      </ScrollView>
+
+      <TouchableOpacity 
+        style={styles.fab}
+        onPress={() => setModalVisible(true)}
+      >
+        <Feather name="plus" size={28} color="#FFF" />
+      </TouchableOpacity>
+
+      <AddTransactionModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onSave={handleAddTransaction}
+      />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#F7F7F7",
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  container: {
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 120,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 25,
+  },
+  greeting: {
+    fontSize: 24,
+    fontWeight: "600",
+  },
+  subtitle: {
+    color: "#777",
+  },
+  balanceCard: {
+    backgroundColor: "#FFF",
+    padding: 20,
+    borderRadius: 15,
+    marginBottom: 25,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  balanceTitle: {
+    textAlign: "center",
+    color: "#555",
+  },
+  balanceValue: {
+    textAlign: "center",
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "green",
+  },
+  balanceInfo: {
+    marginTop: 8,
+    textAlign: "center",
+    color: "#888",
+  },
+  miniCardsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 25,
+  },
+  miniCard: {
+    width: "48%",
+    backgroundColor: "#FFF",
+    padding: 15,
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  sectionTitle: {
+    marginBottom: 10,
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  transactionItem: {
+    backgroundColor: "#FFF",
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    shadowColor: "#000",
+    shadowOpacity: 0.03,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  fab: {
+    position: "absolute",
+    right: 25,
+    bottom: 25,
+    backgroundColor: "green",
+    width: 65,
+    height: 65,
+    borderRadius: 35,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 8,
   },
 });
