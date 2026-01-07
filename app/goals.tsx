@@ -2,12 +2,14 @@ import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Modal,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 interface Goal {
@@ -55,6 +57,11 @@ export default function GoalsScreen() {
     },
   ]);
 
+  const [modalVisible, setModalVisible] = useState(false);
+  const [goalName, setGoalName] = useState('');
+  const [targetValue, setTargetValue] = useState('');
+  const availableBalance = 2450.00;
+
   const formatCurrency = (value: number) => {
     return `R$ ${value.toLocaleString('pt-BR', {
       minimumFractionDigits: 0,
@@ -64,6 +71,36 @@ export default function GoalsScreen() {
 
   const calculateProgress = (current: number, target: number) => {
     return Math.min((current / target) * 100, 100);
+  };
+
+  const addQuickValue = (value: number) => {
+    const currentValue = parseFloat(targetValue.replace(',', '.')) || 0;
+    const newValue = currentValue + value;
+    setTargetValue(newValue.toFixed(2).replace('.', ','));
+  };
+
+  const handleConfirmTransaction = () => {
+    if (!goalName.trim() || !targetValue) return;
+    
+    const target = parseFloat(targetValue.replace(',', '.'));
+    if (target <= 0) return;
+
+    const colors = ['#E3F2FD', '#F3E5F5', '#FFF3E0', '#E0F2F1', '#FCE4EC', '#F1F8E9'];
+    const icons: (keyof typeof Feather.glyphMap)[] = ['target', 'star', 'heart', 'gift', 'award', 'briefcase'];
+    
+    const newGoal: Goal = {
+      id: Date.now().toString(),
+      name: goalName.trim(),
+      icon: icons[Math.floor(Math.random() * icons.length)],
+      iconBgColor: colors[Math.floor(Math.random() * colors.length)],
+      current: 0,
+      target: target,
+    };
+
+    setGoals([...goals, newGoal]);
+    setModalVisible(false);
+    setGoalName('');
+    setTargetValue('');
   };
 
   return (
@@ -129,11 +166,83 @@ export default function GoalsScreen() {
       </ScrollView>
 
       <View style={styles.bottomButtonContainer}>
-        <TouchableOpacity style={styles.addButton}>
+        <TouchableOpacity style={styles.addButton} onPress={() => setModalVisible(true)}>
           <Feather name="plus" size={20} color="#FFF" />
           <Text style={styles.addButtonText}>Adicionar meta</Text>
         </TouchableOpacity>
       </View>
+
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <View style={styles.modalTitleContainer}>
+                <View style={styles.piggyIcon}>
+                  <Text style={styles.piggyEmoji}>🐷</Text>
+                </View>
+                <Text style={styles.modalTitle}>Adicionar à Meta</Text>
+              </View>
+              <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <Feather name="x" size={24} color="#000" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.modalBody}>
+              <Text style={styles.inputLabel}>Selecione a Meta</Text>
+              <TextInput
+                style={styles.textInput}
+                placeholder="Escolha uma meta..."
+                placeholderTextColor="#C7C7CC"
+                value={goalName}
+                onChangeText={setGoalName}
+              />
+
+              <Text style={[styles.inputLabel, { marginTop: 20 }]}>Valor a depositar</Text>
+              <View style={styles.valueInputContainer}>
+                <Text style={styles.currencySymbol}>R$</Text>
+                <TextInput
+                  style={styles.valueInput}
+                  placeholder="0,00"
+                  placeholderTextColor="#C7C7CC"
+                  keyboardType="decimal-pad"
+                  value={targetValue}
+                  onChangeText={setTargetValue}
+                />
+              </View>
+
+              <Text style={styles.availableBalance}>
+                Saldo disponível: <Text style={styles.availableBalanceValue}>R$ {availableBalance.toFixed(2).replace('.', ',')}</Text>
+              </Text>
+
+              <View style={styles.quickValuesContainer}>
+                <TouchableOpacity style={styles.quickValueButton} onPress={() => addQuickValue(50)}>
+                  <Text style={styles.quickValueText}>+ R$ 50</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.quickValueButton} onPress={() => addQuickValue(100)}>
+                  <Text style={styles.quickValueText}>+ R$ 100</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.quickValueButton} onPress={() => addQuickValue(500)}>
+                  <Text style={styles.quickValueText}>+ R$ 500</Text>
+                </TouchableOpacity>
+              </View>
+
+              <TouchableOpacity 
+                style={[styles.confirmButton, (!goalName.trim() || !targetValue) && styles.confirmButtonDisabled]}
+                onPress={handleConfirmTransaction}
+                disabled={!goalName.trim() || !targetValue}
+              >
+                <Feather name="check" size={20} color="#FFF" />
+                <Text style={styles.confirmButtonText}>Confirmar Transação</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -300,6 +409,135 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   addButtonText: {
+    color: '#FFF',
+    fontSize: 17,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalContent: {
+    backgroundColor: '#FFF',
+    borderRadius: 24,
+    width: '100%',
+    maxWidth: 500,
+    maxHeight: '90%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  modalTitleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  piggyIcon: {
+    width: 40,
+    height: 40,
+    backgroundColor: '#E8F5E9',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 12,
+  },
+  piggyEmoji: {
+    fontSize: 24,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#000',
+  },
+  modalBody: {
+    padding: 20,
+  },
+  inputLabel: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#000',
+    marginBottom: 8,
+  },
+  textInput: {
+    backgroundColor: '#F5F5F7',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E5E5EA',
+    fontSize: 16,
+    color: '#000',
+  },
+  valueInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F7',
+    borderRadius: 12,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: '#E5E5EA',
+  },
+  currencySymbol: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#000',
+    marginRight: 8,
+  },
+  valueInput: {
+    flex: 1,
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#000',
+  },
+  availableBalance: {
+    fontSize: 14,
+    color: '#8E8E93',
+    marginTop: 8,
+  },
+  availableBalanceValue: {
+    fontWeight: '600',
+    color: '#4CAF50',
+  },
+  quickValuesContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 16,
+    gap: 8,
+  },
+  quickValueButton: {
+    flex: 1,
+    backgroundColor: '#F5F5F7',
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E5E5EA',
+  },
+  quickValueText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#000',
+  },
+  confirmButton: {
+    backgroundColor: '#4CAF50',
+    borderRadius: 16,
+    paddingVertical: 16,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  confirmButtonDisabled: {
+    opacity: 0.5,
+  },
+  confirmButtonText: {
     color: '#FFF',
     fontSize: 17,
     fontWeight: '600',
