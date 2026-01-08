@@ -1,4 +1,4 @@
-# Meu Controle Financeiro
+# Controle Financeiro
 
 Este é um aplicativo mobile criado com o objetivo de ajudar no controle financeiro do dia a dia. A ideia surgiu porque minha mãe sempre anotou todas as despesas no papel, e eu quis transformar isso em algo mais prático, organizado e fácil de usar no celular. O projeto acabou virando uma ferramenta que qualquer pessoa pode usar para gerenciar suas finanças de um jeito simples.
 
